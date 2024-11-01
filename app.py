@@ -4,7 +4,7 @@ from flask import Flask, render_template, request, url_for, flash, redirect, abo
 # make a Flask application object called app
 app = Flask(__name__)
 app.config["DEBUG"] = True
-
+app.config['SECRET_KEY'] = 'your secret key'
 
 
 # Function to open a connection to the database.db file
@@ -19,6 +19,16 @@ def get_db_connection():
     #return the connection object
     return conn
 
+def get_post(id):
+    conn = get_db_connection()
+    post = conn.execute('SELECT * FROM posts WHERE id = ?', (post_id)).fetchone()
+    conn.close()
+
+    if post is None:
+        abort(404)
+
+    return post
+
 
 # use the app.route() decorator to create a Flask view function called index()
 @app.route('/')
@@ -32,11 +42,10 @@ def index():
     conn.close()
     #send posts to index template
     return render_template('index.html', posts=posts)
+    
 
 
 # route to create a post
-
-
 @app.route('/create/', methods=('GET', 'POST'))
 def create():
     if request.method == 'POST':
@@ -54,4 +63,30 @@ def create():
             conn.close()
             return redirect(url_for('index'))
     return render_template('create.html')
+@app.route('/<int:id>/edit/', methode=('GET', 'POST'))
+def edit(id):
+    post = get_post(id)
+    if request.method == 'POST':
+        title = request.form['title']
+        content = request.form['content']
+
+        if not title:
+            flash('Title is required')
+        elif not content:
+            flash('Content is required')
+        else:
+            conn = get_db_connection()
+
+            conn.execute('UPDATE posts SET title = ?, content = ? WHERE id = ?', (title, content, id))
+            conn.commit()
+            conn.close()
+
+
+            return redirect(url_for('index'))
+
+    return render_template('edit.html', post=post)
+
+
+
+
 app.run(port=5008)
