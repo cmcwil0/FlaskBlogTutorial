@@ -28,7 +28,7 @@
 <body>
     <nav>
         <a href="{{ url_for('index') }}">FlaskApp</a>
-        <a href="{{ url_for('create') }}">Create</a>
+        <a href="{{ url_for('create') }}">Create</a>        
         <a href="#">About</a>
     </nav>
     <hr>
@@ -36,6 +36,7 @@
         {% for message in get_flashed_messages() %}
             <div class="alert">{{ message }}</div>
         {% endfor %}
+
         {% block content %} {% endblock %}
     </div>
 </body>
