@@ -27,10 +27,11 @@ def index():
     conn = get_db_connection()
 
     #execute query to read all posts from the posts table
-    posts = conn.execute('SELECT * FROM posts')
+    posts = conn.execute('SELECT * FROM posts').fetchall()
     #close connection
+    conn.close()
     #send posts to index template
-    return "<h1>Welcome to Cadens Blog</h1>"
+    return render_template('index.html', posts=posts)
 
 
 # route to create a post
